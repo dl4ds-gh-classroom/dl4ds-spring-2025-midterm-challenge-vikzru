@@ -19,30 +19,30 @@ class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
         # First convolution: from 3 channels to 32 feature maps
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv1=nn.Conv2d(3,32, kernel_size=3, padding=1)
         # Second convolution: from 32 channels to 64 feature maps
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv2=nn.Conv2d(32,64, kernel_size=3, padding=1)
         # Third convolution: from 64 channels to 128 feature maps
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.conv3=nn.Conv2d(64,128, kernel_size=3, padding=1)
         # Define a pooling layer (used after each conv layer)
-        self.pool = nn.MaxPool2d(2, 2)
+        self.pool=nn.MaxPool2d(2, 2)
         # After three poolings on a 32x32 image:
         # 32 -> 16 -> 8 -> 4, so spatial dimensions become 4x4.
-        self.fc1 = nn.Linear(128 * 4 * 4, 256)  # Adjusted to the new flattened size
-        self.fc2 = nn.Linear(256, 100)           # 100 output classes for CIFAR-100
+        self.fc1= nn.Linear(128*4*4, 256)  # Adjusted to the new flattened size
+        self.fc2= nn.Linear(256, 100)           # 100 output classes for CIFAR-100
 
     def forward(self, x):
         # Pass through the first conv layer, apply ReLU, then pool
-        x = self.pool(F.relu(self.conv1(x)))   # Output: [batch, 32, 16, 16]
+        x= self.pool(F.relu(self.conv1(x)))   # Output: [batch, 32, 16, 16]
         # Second conv layer
-        x = self.pool(F.relu(self.conv2(x)))   # Output: [batch, 64, 8, 8]
+        x= self.pool(F.relu(self.conv2(x)))   # Output: [batch, 64, 8, 8]
         # Third conv layer
-        x = self.pool(F.relu(self.conv3(x)))   # Output: [batch, 128, 4, 4]
+        x= self.pool(F.relu(self.conv3(x)))   # Output: [batch, 128, 4, 4]
         # Flatten the output
-        x = x.view(x.size(0), -1)
+        x= x.view(x.size(0),-1)
         # Fully connected layers
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x= F.relu(self.fc1(x))
+        x= self.fc2(x)
         return x
 
 ################################################################################
