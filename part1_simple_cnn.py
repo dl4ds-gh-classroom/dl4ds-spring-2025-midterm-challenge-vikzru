@@ -139,7 +139,7 @@ def main():
     CONFIG = {
         "model": "SimpleCNN",   # Change name when using a different model
         "batch_size": 8, # run batch size finder to find optimal batch size
-        "learning_rate": 0.1,
+        "learning_rate": 0.01,
         "epochs": 5,  # Train for longer in a real scenario
         "num_workers": 4, # Adjust based on your system
         "device": "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu",
@@ -208,7 +208,7 @@ def main():
     # The following code you can run once to find the batch size that gives you the fastest throughput.
     # You only have to do this once for each machine you use, then you can just
     # set it in CONFIG.
-    SEARCH_BATCH_SIZES = False
+    SEARCH_BATCH_SIZES = True
     if SEARCH_BATCH_SIZES:
         from utils import find_optimal_batch_size
         print("Finding optimal batch size...")
@@ -263,6 +263,11 @@ def main():
     ############################################################################
     import eval_cifar100
     import eval_ood
+
+    # --- Load the best saved model before evaluation ---
+    model.load_state_dict(torch.load("best_model.pth"))
+    model.to(CONFIG["device"])
+    print("Loaded best model for final evaluation.")
 
     # --- Evaluation on Clean CIFAR-100 Test Set ---
     predictions, clean_accuracy = eval_cifar100.evaluate_cifar100_test(model, testloader, CONFIG["device"])
