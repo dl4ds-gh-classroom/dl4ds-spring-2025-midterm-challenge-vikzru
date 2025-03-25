@@ -18,10 +18,10 @@ import json
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
-        # Use the ResNet18 model from torchvision.
-        # Note: For Part 2 we are training from scratch (pretrained=False)
+        #I'll use the ResNet18 model from torchvision trained from scratch
         self.model = torchvision.models.resnet18(pretrained=False)
-        # Modify the final fully connected layer to output 100 classes (CIFAR-100)
+
+        #I have to modify the final layer for 100 classes
         num_features = self.model.fc.in_features
         self.model.fc = nn.Sequential(nn.Dropout(0.5), nn.Linear(num_features, 100)) #added dropout to help with overfitting
     
@@ -48,12 +48,16 @@ def train(epoch, model, trainloader, optimizer, criterion, CONFIG):
         # move inputs and labels to the target device
         inputs, labels = inputs.to(device), labels.to(device)
 
-        # Forward pass: compute outputs and loss
+        #forward pass, we compute outputs and loss
         optimizer.zero_grad()
         outputs = model(inputs)
         loss = criterion(outputs, labels)
-        loss.backward()        # Backward pass: compute gradients
-        optimizer.step()       # Update model parameters
+
+        #backward pass,we compute gradients
+        loss.backward()    
+        
+        #update model parameters
+        optimizer.step()     
 
         running_loss += loss.item()
         _, predicted = torch.max(outputs, 1)
@@ -89,14 +93,11 @@ def validate(model, valloader, criterion, device):
             # move inputs and labels to the target device
             inputs, labels = inputs.to(device), labels.to(device)
 
-            outputs = model(inputs)              # Inference step
-            loss = criterion(outputs, labels)    # Compute loss
+            outputs = model(inputs)              #inference step
+            loss = criterion(outputs, labels)    #compute loss
 
             running_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
-
-            total += labels.size(0)
-            correct += predicted.eq(labels).sum().item()
 
             total += labels.size(0)
             correct += predicted.eq(labels).sum().item()
@@ -122,7 +123,7 @@ def main():
         "model": "ResNet18",   # Change name when using a different model
         "batch_size": 128, # run batch size finder to find optimal batch size
         "learning_rate": 0.001,
-        "epochs": 30,  # Train for longer in a real scenario
+        "epochs": 5,  # Train for longer in a real scenario
         "num_workers": 4, # Adjust based on your system
         "device": "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu",
         "data_dir": "./data",  # Make sure this directory exists
@@ -141,13 +142,13 @@ def main():
 
    # For ResNet18, resize images to 224x224
     transform_train = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop(224, padding=4),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-])
+            transforms.Resize((224, 224)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(224, padding=4),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ])
     # No data augmentation for validation and test sets
     transform_test = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -162,25 +163,22 @@ def main():
     trainset = torchvision.datasets.CIFAR100(root='./data', train=True,
                                             download=True, transform=transform_train)
 
-    # Split train into train and validation (80/20 split)
+    #split train into train and validation 80/20 
     train_size = int(0.8 * len(trainset))
     val_size = len(trainset) - train_size
+    #splits randmly
     trainset, valset = torch.utils.data.random_split(trainset, [train_size, val_size])
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=CONFIG["batch_size"],
-                                              shuffle=True, num_workers=CONFIG["num_workers"])
-    valloader = torch.utils.data.DataLoader(valset, batch_size=CONFIG["batch_size"],
-                                            shuffle=False, num_workers=CONFIG["num_workers"])
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=CONFIG["batch_size"], shuffle=True, num_workers=CONFIG["num_workers"])
+    valloader = torch.utils.data.DataLoader(valset, batch_size=CONFIG["batch_size"], shuffle=False, num_workers=CONFIG["num_workers"])
 
-    testset = torchvision.datasets.CIFAR100(root=CONFIG["data_dir"], train=False,
-                                            download=True, transform=transform_test)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=CONFIG["batch_size"],
-                                             shuffle=False, num_workers=CONFIG["num_workers"])
+    testset = torchvision.datasets.CIFAR100(root=CONFIG["data_dir"], train=False, download=True, transform=transform_test)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=CONFIG["batch_size"], shuffle=False, num_workers=CONFIG["num_workers"])
     
     ############################################################################
     #   Instantiate model and move to target device
     ############################################################################
-    model =  SimpleCNN()     # instantiate your model 
+    model = SimpleCNN()     # instantiate your model 
     model = model.to(CONFIG["device"])   # move it to target device
 
     print("\nModel summary:")
@@ -201,11 +199,10 @@ def main():
     ############################################################################
     # Loss Function, Optimizer and optional learning rate scheduler
     ############################################################################
-    criterion = nn.CrossEntropyLoss()  # Loss function for classification
+    criterion = nn.CrossEntropyLoss()  # Loss function for classification, tells me how "wrong" my predictions are
     optimizer = optim.AdamW(model.parameters(), lr=CONFIG["learning_rate"], weight_decay=1e-4) #adam optimizer because it converges faster and handles learning rate adaptation, Weight decay helps reduce overfitting by penalizing large weights.
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=CONFIG["epochs"]) #CosineAnnealingLR Scheduler gives better control over learning rate decay compared to StepLR
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=CONFIG["epochs"]) #CosineAnnealingLR Scheduler gives better control over learning rate decay compared to StepLR, it smoothly lowers learning rate to fine-tune the model over time
  
-
 
     # Initialize wandb
     wandb.login(key ="1c7daa0a3543dea78f86b2b2cba0b7571e1d2ea9")
@@ -245,6 +242,11 @@ def main():
     ############################################################################
     import eval_cifar100
     import eval_ood
+
+    # --- Load the best saved model before evaluation ---
+    model.load_state_dict(torch.load("best_model.pth"))
+    model.to(CONFIG["device"])
+    print("Loaded best model for final evaluation.")
 
     # --- Evaluation on Clean CIFAR-100 Test Set ---
     predictions, clean_accuracy = eval_cifar100.evaluate_cifar100_test(model, testloader, CONFIG["device"])
