@@ -204,7 +204,7 @@ def main():
 
     # Initialize wandb
     wandb.login(key ="1c7daa0a3543dea78f86b2b2cba0b7571e1d2ea9")
-    wandb.init(project="-sp25-ds542-challenge", config=CONFIG)
+    wandb.init(project="sp25-ds542-challenge", config=CONFIG)
     wandb.watch(model)  # watch the model gradients
 
     ############################################################################
