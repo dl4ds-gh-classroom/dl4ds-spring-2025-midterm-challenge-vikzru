@@ -23,7 +23,7 @@ class SimpleCNN(nn.Module):
         self.model = torchvision.models.resnet18(pretrained=False)
         # Modify the final fully connected layer to output 100 classes (CIFAR-100)
         num_features = self.model.fc.in_features
-        self.model.fc = nn.Linear(num_features, 100)
+        self.model.fc = nn.Sequential(nn.Dropout(0.5), nn.Linear(num_features, 100)) #added dropout to help with overfitting
     
     def forward(self, x):
         return self.model(x)
@@ -121,8 +121,8 @@ def main():
     CONFIG = {
         "model": "ResNet18",   # Change name when using a different model
         "batch_size": 128, # run batch size finder to find optimal batch size
-        "learning_rate": 0.01,
-        "epochs": 5,  # Train for longer in a real scenario
+        "learning_rate": 0.001,
+        "epochs": 30,  # Train for longer in a real scenario
         "num_workers": 4, # Adjust based on your system
         "device": "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu",
         "data_dir": "./data",  # Make sure this directory exists
@@ -141,11 +141,13 @@ def main():
 
    # For ResNet18, resize images to 224x224
     transform_train = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-    ])
-
+    transforms.Resize((224, 224)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomCrop(224, padding=4),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+])
     # No data augmentation for validation and test sets
     transform_test = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -200,13 +202,14 @@ def main():
     # Loss Function, Optimizer and optional learning rate scheduler
     ############################################################################
     criterion = nn.CrossEntropyLoss()  # Loss function for classification
-    optimizer = optim.SGD(model.parameters(), lr=CONFIG["learning_rate"], momentum=0.9)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
+    optimizer = optim.AdamW(model.parameters(), lr=CONFIG["learning_rate"], weight_decay=1e-4) #adam optimizer because it converges faster and handles learning rate adaptation, Weight decay helps reduce overfitting by penalizing large weights.
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=CONFIG["epochs"]) #CosineAnnealingLR Scheduler gives better control over learning rate decay compared to StepLR
+ 
 
 
     # Initialize wandb
     wandb.login(key ="1c7daa0a3543dea78f86b2b2cba0b7571e1d2ea9")
-    wandb.init(project="-sp25-ds542-challenge", config=CONFIG)
+    wandb.init(project="sp25-ds542-challenge", config=CONFIG)
     wandb.watch(model)  # watch the model gradients
 
     ############################################################################
