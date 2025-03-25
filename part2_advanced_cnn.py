@@ -243,11 +243,6 @@ def main():
     import eval_cifar100
     import eval_ood
 
-    # --- Load the best saved model before evaluation ---
-    model.load_state_dict(torch.load("best_model.pth"))
-    model.to(CONFIG["device"])
-    print("Loaded best model for final evaluation.")
-
     # --- Evaluation on Clean CIFAR-100 Test Set ---
     predictions, clean_accuracy = eval_cifar100.evaluate_cifar100_test(model, testloader, CONFIG["device"])
     print(f"Clean CIFAR-100 Test Accuracy: {clean_accuracy:.2f}%")

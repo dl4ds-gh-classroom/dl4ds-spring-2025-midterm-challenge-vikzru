@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
+import torch.nn.functional as F
 import os
 import numpy as np
 import pandas as pd
@@ -25,6 +26,7 @@ def evaluate_ood(model, distortion_name, severity, CONFIG):
     # Convert to PyTorch tensors and create DataLoader
     images = torch.from_numpy(images).float() / 255.  # Normalize to [0, 1]
     images = images.permute(0, 3, 1, 2)  # (N, H, W, C) -> (N, C, H, W)
+    images = F.interpolate(images, size=(224, 224), mode='bilinear', align_corners=False) #resizes OOD images to the size expected by ResNet18
     dataset = torch.utils.data.TensorDataset(images)
     dataloader = torch.utils.data.DataLoader(
         dataset, 
@@ -34,7 +36,9 @@ def evaluate_ood(model, distortion_name, severity, CONFIG):
         pin_memory=True)
 
     # Normalize after converting to tensor
-    normalize = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
+    #normalize = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
+    normalize = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+
     
     predictions = []  # Store predictions
     with torch.no_grad():
