@@ -21,6 +21,9 @@ class SimpleCNN(nn.Module):
         #I'll use the ResNet18 model from torchvision trained from scratch
         self.model = torchvision.models.resnet18(pretrained=False)
 
+
+#conv1 a maxpoool
+
         #I have to modify the final layer for 100 classes
         num_features = self.model.fc.in_features
         self.model.fc = nn.Sequential(nn.Dropout(0.5), nn.Linear(num_features, 100)) #added dropout to help with overfitting

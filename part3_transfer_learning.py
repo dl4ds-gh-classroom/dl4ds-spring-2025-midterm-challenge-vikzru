@@ -118,7 +118,7 @@ def main():
         "model": "PretrainedResNet18",   # Change name when using a different model
         "batch_size": 128, # run batch size finder to find optimal batch size
         "learning_rate": 0.001,
-        "epochs": 5,  # Train for longer in a real scenario
+        "epochs": 15,  # Train for longer in a real scenario
         "num_workers": 4, # Adjust based on your system
         "device": "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu",
         "data_dir": "./data",  # Make sure this directory exists
@@ -140,13 +140,13 @@ def main():
         transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(),  # Data augmentation for training
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
 
     transform_test = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
 
 
@@ -234,6 +234,11 @@ def main():
             wandb.save("best_model.pth") # Save to wandb as well
 
     wandb.finish()
+
+    model.load_state_dict(torch.load("best_model.pth"))
+    model.to(CONFIG["device"])
+    print("Loaded best model for final evaluation.")
+
 
     ############################################################################
     # Evaluation -- shouldn't have to change the following code
