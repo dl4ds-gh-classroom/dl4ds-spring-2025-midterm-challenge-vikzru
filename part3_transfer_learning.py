@@ -20,10 +20,14 @@ class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
         # Load a pretrained ResNet18 model from torchvision
-        self.model = torchvision.models.resnet18(pretrained=True)
+        #self.model = torchvision.models.resnet18(pretrained=True)
+        self.model = torchvision.models.resnet50(pretrained=True)
         # Replace the final fully-connected layer to output 100 classes (for CIFAR-100)
         num_features = self.model.fc.in_features
-        self.model.fc = nn.Linear(num_features, 100)
+        self.model.fc = nn.Sequential(
+            nn.Dropout(p=0.5),  # Dropout with 50% probability
+            nn.Linear(num_features, 100)
+        )
     
     def forward(self, x):
         return self.model(x)
@@ -112,13 +116,13 @@ def main():
     # It's convenient to put all the configuration in a dictionary so that we have
     # one place to change the configuration.
     # It's also convenient to pass to our experiment tracking tool.
-
+    best_val_loss = float('inf')
 
     CONFIG = {
         "model": "PretrainedResNet18",   # Change name when using a different model
         "batch_size": 128, # run batch size finder to find optimal batch size
         "learning_rate": 0.001,
-        "epochs": 15,  # Train for longer in a real scenario
+        "epochs": 50,  # Train for longer in a real scenario
         "num_workers": 4, # Adjust based on your system
         "device": "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu",
         "data_dir": "./data",  # Make sure this directory exists
@@ -135,12 +139,16 @@ def main():
     #      Data Transformation (Example - You might want to modify) 
     ############################################################################
 
-    # For pretrained models like ResNet, images are typically 224x224.
+    # For pretrained models - ResNet, images are typically 224x224.
     transform_train = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),  # Data augmentation for training
+        transforms.Resize((256, 256)),
+        transforms.RandomCrop(224, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(15),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+        transforms.RandomErasing(p=0.5, scale=(0.02, 0.33))  # Similar to Cutout
     ])
 
     transform_test = transforms.Compose([
@@ -198,8 +206,8 @@ def main():
     # Loss Function, Optimizer and optional learning rate scheduler
     ############################################################################
     criterion = nn.CrossEntropyLoss()  # Suitable for classification
-    optimizer = optim.SGD(model.parameters(), lr=CONFIG["learning_rate"], momentum=0.9)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
+    optimizer = optim.AdamW(model.parameters(), lr=CONFIG["learning_rate"], weight_decay=1e-4)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=CONFIG["epochs"])
 
 
     # Initialize wandb
@@ -211,6 +219,8 @@ def main():
     # --- Training Loop (Example - Students need to complete) ---
     ############################################################################
     best_val_acc = 0.0
+    patience = 5  # Number of epochs to wait before stopping if no improvement
+    early_stop_counter = 0
 
     for epoch in range(CONFIG["epochs"]):
         train_loss, train_acc = train(epoch, model, trainloader, optimizer, criterion, CONFIG)
@@ -227,12 +237,20 @@ def main():
             "lr": optimizer.param_groups[0]["lr"] # Log learning rate
         })
 
-        # Save the best model (based on validation accuracy)
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
+         # Early stopping based on validation loss improvement
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            early_stop_counter = 0
+            # Save the best model
             torch.save(model.state_dict(), "best_model.pth")
-            wandb.save("best_model.pth") # Save to wandb as well
-
+            wandb.save("best_model.pth")
+        else:
+            early_stop_counter += 1
+            print(f"No improvement for {early_stop_counter} epoch(s)")
+            if early_stop_counter >= patience:
+                print("Early stopping triggered")
+                break
+                
     wandb.finish()
 
     model.load_state_dict(torch.load("best_model.pth"))
