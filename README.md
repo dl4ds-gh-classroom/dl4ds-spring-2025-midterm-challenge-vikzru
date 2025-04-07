@@ -25,7 +25,7 @@ I used the free version of **ChatGPT** for assistance throughout this project. T
 
 ## 📦 Project Structure
 
-\`\`\`bash
+```bash
 .
 ├── part1_simple_cnn.py         # Code for baseline CNN model
 ├── part2_resnet18.py           # Code for training ResNet18 from scratch
@@ -33,7 +33,6 @@ I used the free version of **ChatGPT** for assistance throughout this project. T
 ├── utils/                      # Helper functions (data loaders, transforms, etc.)
 ├── requirements.txt
 └── README.md                   # This file
-\`\`\`
 
 ---
 
