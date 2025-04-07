@@ -34,6 +34,7 @@ I used the free version of **ChatGPT** for assistance throughout this project. T
 ├── requirements.txt
 └── README.md                   # This file
 
+```
 ---
 
 ## 🧠 Model Summary
