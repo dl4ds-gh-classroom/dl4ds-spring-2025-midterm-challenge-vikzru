@@ -37,6 +37,29 @@ I used the free version of **ChatGPT** for assistance throughout this project. T
 ```
 ---
 
+## 📂 Evaluation Scripts
+
+### `eval_cifar100.py`
+This script evaluates the trained model on the **CIFAR-100 test set**. It:
+- Loads the best saved model.
+- Runs inference on the test data.
+- Calculates and prints overall classification accuracy.
+- Returns the predictions for further analysis.
+
+Use this to measure how well the model generalizes to clean, in-distribution data.
+
+---
+
+### `eval_ood.py`
+This script handles evaluation on the **out-of-distribution (OOD) test set**, which contains challenge images. It:
+- Performs inference on OOD images using the trained model.
+- Collects predictions and formats them into a CSV file.
+- Creates `submission_ood.csv` for uploading to the Kaggle leaderboard.
+
+It also includes helper functions to generate and save the OOD submission in the required format.
+
+---
+
 ## 🧠 Model Summary
 
 ### 🔹 Part 1: Simple CNN  
