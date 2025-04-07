@@ -13,7 +13,7 @@ This repository contains my submission for the DS542 Midterm Challenge, which fo
 
 1. **Part 1 – Simple CNN:** Design and train a baseline convolutional neural network from scratch.
 2. **Part 2 – More Sophisticated CNN (ResNet18):** Train a deeper model and introduce basic regularization and augmentation.
-3. **Part 3 – Transfer Learning (ResNet50):** Fine-tune a pretrained model using advanced training techniques and optimization strategies.
+3. **Part 3 – Transfer Learning (ResNet50):** Fine-tune a pre-trained model using advanced training techniques and optimization strategies.
 
 ---
 
@@ -107,24 +107,24 @@ These visualizations helped identify overfitting and monitor performance improve
 | 2    | ResNet18      | 0.30093      |
 | 3    | ResNet50 (TL) | 0.57876      |
 
-Part 3 achieved the best performance due to its deep architecture, transfer learning, strong regularization, and carefully tuned augmentation strategies.
+Part 3 achieved the best performance due to its deep architecture, transfer learning, regularization, and augmentation.
 
 ---
 
 ## 🚀 How to Run
 
-\`\`\`bash
+```bash
 # Set up virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate      # On Windows: .\.venv\Scripts\activate
 pip install -r requirements.txt
 
 # Run each model script independently
 python part1_simple_cnn.py
 python part2_resnet18.py
 python part3_resnet50_transfer.py
-\`\`\`
 
+```
 ---
 
 ## 📬 Acknowledgments
