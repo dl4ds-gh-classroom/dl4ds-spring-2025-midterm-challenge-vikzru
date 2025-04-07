@@ -40,10 +40,12 @@ I used the free version of **ChatGPT** for assistance throughout this project. T
 ## 📂 Evaluation Scripts
 
 #### `eval_cifar100.py`
+
 This script evaluates the trained model on the clean **CIFAR-100 test set**. 
 ---
 
 #### `eval_ood.py`
+
 This script handles evaluation on the **out-of-distribution (OOD) test set**, which contains challenge images. It performs inference on OOD images using the trained model. It also includes helper functions to generate and save the OOD submission in the required format.
 ---
 
