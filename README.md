@@ -127,7 +127,5 @@ python part3_resnet50_transfer.py
 ```
 ---
 
-## 📬 Acknowledgments
-
 Thanks to the DS542 instructors for the structured challenge and to **Weights & Biases** for the free experiment tracking tools.  
-Also, a shoutout to ChatGPT for debugging help and support in exploring deep learning concepts!
+
