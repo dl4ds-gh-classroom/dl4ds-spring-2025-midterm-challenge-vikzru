@@ -1,98 +1,145 @@
-# DS542 Deep Learning for Data Science -- Spring 2025 Midterm Challenge
+# 🧠 DS542 Deep Learning for Data Science — Midterm Challenge (Spring 2025)
 
-## Overview
+### 📝 Author: Viktoria Zruttova  
+📅 Date: March 27, 2025  
+🏆 Kaggle Username: *Viktoria Zruttova*  
+📊 Best Kaggle Score: **0.57876** (Part 3)
 
-This repository contains the code for the midterm challenge of the course DS542 Deep Learning for Data Science.
+---
 
-The challenge is in three parts:
-1. **Part 1 -- Simple CNN:** Define a relatively simple CNN model and train it on the CIFAR-100 dataset to
-    get a complete pipeline and establish baseline performance.
-2. **Part 2 -- More Sophisticated CNN Models:** Use a more sophisticated model, including predefined models from torchvision
-   to train and evaluate on CIFAR-100.
-3. **Part 3 -- Transfer Learning from a Pretrained Model:** Pretrain a model, or use one of the pretrained models from torchvision, and
-   fine-tune it on CIFAR-100. Try to beat the best benchmark performance on the leaderboard.
+## 📌 Overview
 
-All your models should be built from linear and convoultional layers, as well as pooling, etc. We haven't covered Transformers yet,
-so don't use Transformer architectures.
+This repository contains my submission for the DS542 Midterm Challenge, which focuses on image classification using the CIFAR-100 dataset. The challenge was divided into three parts, each increasing in complexity:
 
-There is example starter template in `starter_code.py` which includes evaluation and submissions generation code. We suggest
-you copy and revise that code for each of the three parts above. In other words, your repo should have (at least) the three
-files, one for each part described above, as well as any supporting files.
+1. **Part 1 – Simple CNN:** Design and train a baseline convolutional neural network from scratch.
+2. **Part 2 – More Sophisticated CNN (ResNet18):** Train a deeper model and introduce basic regularization and augmentation.
+3. **Part 3 – Transfer Learning (ResNet50):** Fine-tune a pre-trained model using advanced training techniques and optimization strategies.
 
-For each part, submit the results to the Kaggle [leaderboard](https://www.kaggle.com/t/3551aa4f562f4b79b93204b11ae640b4).
+---
 
-Your best result needs beat the best benchmark performance of 0.397 on the leaderboard.
+## 🤖 AI Disclosure
 
-Use Weights and Biases experiment tracking tool to track your experiments. Create
-a free student account at [WandB](https://wandb.ai). The starter code is already
-instrumented for WandB, so it will start tracking experiments right away.
+I used the free version of **ChatGPT** for assistance throughout this project. The AI helped me understand CNN architectures, implement regularization techniques, and debug training loops. I personally wrote the initial model definitions, training logic, and hyperparameter tuning strategies, while AI support was primarily used for learning, validation, and code refinement. All code includes detailed comments describing the functionality.
 
-You can write your report using the WandB Reports UI if you wish.
+---
 
-## Data
-
-You will start with the CIFAR-100 dataset, which is downloaded and installed the
-first time your successfully run the sample code, `starter_code.py`.
-
-It should install into the `data/cifar-100-python` directory.
-
-We also have the challenge images in `data/ood-test` directory. Those are used
-to make predictions on the challenge images with your model and produce the 
-submission file.
-
-## Setup
-
-Fork this repository to your GitHub account and clone it to your local machine
-or to the SCC.
-
-On MacOS and Linux, you can create a virtual environment and install the
-dependencies with the following commands:
+## 📦 Project Structure
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+.
+├── part1_simple_cnn.py         # Code for baseline CNN model
+├── part2_resnet18.py           # Code for training ResNet18 from scratch
+├── part3_resnet50_transfer.py  # Code for fine-tuning pretrained ResNet50
+├── utils/                      # Helper functions (data loaders, transforms, etc.)
+├── requirements.txt
+└── README.md                   # This file
+
 ```
+---
 
-## Report
+## 📂 Evaluation Scripts
 
-In addition to the code, we require a short report that includes:
+#### `eval_cifar100.py`
 
-* **AI Disclosure:** You are allowed to use AI assistance for this assignment, but you are required to:
-    * Explain how you used AI, e.g. Copilot, Cursor, ChatGPT, etc.
-    * Enumerate in detail which parts of the code were written by you and which were written with AI assistance.
-    * Have detailed code comments explaining what every part of your code does. This can be in the codebase itself.
-    * **Failure to disclose how you used AI may result in a score of 0 for the assignment.**
-* **Model Description:** Detailed explanation of the chosen architecture, including justifications for design choices.
-* **Hyperparameter Tuning:** Description of the hyperparameter search process and the final chosen values.
-* **Regularization Techniques:** Explanation of the regularization methods used and their impact.
-* **Data Augmentation Strategy:** Description of the data augmentation techniques used.
-* **Results Analysis:** Discussion of the results, including strengths and weaknesses of the model, and potential areas for improvement.
-* **Experiment Tracking Summary:**  Include screenshots or summaries from the experiment tracking tool.
-  You can use the WandB Reports UI to create a report as well.
+This script evaluates the trained model on the clean **CIFAR-100 test set**. 
 
-## Grading Rubric
+---
 
-The grading rubric is as follows:
+#### `eval_ood.py`
 
-* **Code Quality (30%):**
-    * Correctness of implementation.
-    * Readability and organization of code.
-    * Use of PyTorch best practices.
-    * Efficiency of data loading and processing.
-* **Model Performance (40%):**
-    * Performance on the primary evaluation metric.
-    * Ranking on the leaderboard of at least above 0.397
-    * List the leaderboard performance, identifier and username for the best scores for each of the three parts of the assignment.
-* **Experiment Tracking and Report (30%):**
-    * Comprehensive AI disclosure statement.
-    * Completeness and clarity of the report.
-    * Thoroughness of experiment tracking.
-    * Justification of design choices.
-    * Analysis of results.
-    * Ablation study (if included).
+This script handles evaluation on the **out-of-distribution (OOD) test set**, which contains challenge images. It performs inference on OOD images using the trained model. It also includes helper functions to generate and save the OOD submission in the required format.
 
-## Bonus Points (Optional)
+---
 
-The top 10 students on the Private leaderboard will receive bonus points.
+## 🧠 Model Summary
+
+### 🔹 Part 1: Simple CNN  
+- **Architecture:** 3 Conv layers + FC layer  
+- **Optimizer:** SGD with momentum  
+- **Scheduler:** StepLR  
+- **Regularization:** None  
+- **Kaggle Score:** **0.16158**
+
+### 🔹 Part 2: ResNet18  
+- **Modifications:** Custom classifier head with dropout  
+- **Data Augmentation:** Horizontal flip, crop, color jitter  
+- **Optimizer:** AdamW + CosineAnnealingLR  
+- **Regularization:** Dropout (p=0.5), weight decay (1e-4)  
+- **Kaggle Score:** **0.30093**
+
+### 🔹 Part 3: ResNet50 (Pretrained)  
+- **Transfer Learning:** Fine-tuned last 50 parameters  
+- **Data Augmentation:** Strong augmentation + Mixup  
+- **Regularization:** Dropout, BatchNorm, Label Smoothing (0.1), Early Stopping  
+- **Optimizer:** AdamW  
+- **Scheduler:** Warmup + CosineAnnealingWarmRestarts  
+- **Kaggle Score:** **0.57876**
+
+---
+
+## ⚙️ Hyperparameter Tuning
+
+| Parameter         | Value       | Reasoning |
+|------------------|-------------|-----------|
+| Batch Size       | 32          | Balanced compute and performance |
+| Learning Rate    | 0.001       | Empirically best after testing |
+| Epochs           | 200         | Early stopping applied (patience=40) |
+| Optimizer        | AdamW       | Combines adaptive learning with regularization |
+| Scheduler        | Warmup + Cosine | Helps escape local minima and stabilize learning |
+
+---
+
+## 🧪 Regularization & Augmentation Techniques
+
+- **Dropout (0.5):** Reduces overfitting in FC layers  
+- **Weight Decay (1e-4):** Penalizes large weights  
+- **Early Stopping:** Monitors validation loss to prevent overfitting  
+- **Label Smoothing (0.1):** Reduces overconfidence in predictions  
+- **Gradient Clipping (max norm=1.0):** Prevents exploding gradients  
+- **Data Augmentation:**  
+  - Basic: Cropping, flipping, color jitter  
+  - Advanced: Random erasing, Mixup blending for improved robustness
+
+---
+
+## 📊 Experiment Tracking (W&B)
+
+All experiments were tracked using **Weights & Biases**, including:
+- Training & validation accuracy/loss
+- Learning rate trends
+- Early stopping behavior
+- Model checkpoints  
+These visualizations helped identify overfitting and monitor performance improvements across training iterations.
+
+---
+
+## 📈 Results
+
+| Part | Model         | Kaggle Score |
+|------|---------------|--------------|
+| 1    | Simple CNN    | 0.16158      |
+| 2    | ResNet18      | 0.30093      |
+| 3    | ResNet50 (TL) | 0.57876      |
+
+Part 3 achieved the best performance due to its deep architecture, transfer learning, regularization, and augmentation.
+
+---
+
+## 🚀 How to Run
+
+```bash
+# Set up virtual environment
+python3 -m venv .venv
+source .venv/bin/activate      # On Windows: .\.venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run each model script independently
+python part1_simple_cnn.py
+python part2_resnet18.py
+python part3_resnet50_transfer.py
+
+```
+---
+
+Thanks to the DS542 instructors for the structured challenge and to **Weights & Biases** for the free experiment tracking tools.  
+
